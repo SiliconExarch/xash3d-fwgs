@@ -332,3 +332,6 @@ __pycache__
 *.code-workspace
 .history/*
 .cache/*
+
+# BBEdit
+*.bbprojectd/*
