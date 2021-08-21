@@ -146,6 +146,12 @@ const char *Q_buildarch( void )
 	archname = "javascript";
 #elif XASH_E2K
 	archname = "e2k";
+#elif XASH_PPC
+	archname = "ppc";
+#elif XASH_PPC && XASH_64BIT
+	archname = "ppc64"
+#elif XASH_PPC && XASH_64BIT && XASH_LITTLE_ENDIAN
+	archname = "ppc64le"
 #else
 #error "Place your architecture name here! If this is a mistake, try to fix conditions above and report a bug"
 #endif
