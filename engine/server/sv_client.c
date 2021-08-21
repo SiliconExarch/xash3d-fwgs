@@ -2332,13 +2332,16 @@ static void SV_ParseClientMove( sv_client_t *cl, sizebuf_t *msg )
 
 	// if the checksum fails, ignore the rest of the packet
 	size = MSG_GetRealBytesRead( msg ) - key - 1;
+	
+#ifndef XASH_BIG_ENDIAN
 	checksum2 = CRC32_BlockSequence( msg->pData + key + 1, size, cl->netchan.incoming_sequence );
 
 	if( checksum2 != checksum1 )
 	{
-		Con_Reportf( S_ERROR "SV_UserMove: failed command checksum for %s (%d != %d)\n", cl->name, checksum2, checksum1 );
+		MsgDev( D_ERROR, "SV_UserMove: failed command checksum for %s (%d != %d)\n", cl->name, checksum2, checksum1 );
 		return;
 	}
+#endif
 
 	cl->packet_loss = packet_loss;
 

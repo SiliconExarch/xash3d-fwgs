@@ -822,6 +822,7 @@ static char *SV_ReadEntityScript( const char *filename, int *flags )
 	dheader_t		*header;
 	size_t		ft1, ft2;
 	file_t		*f;
+	int		i;
 
 	*flags = 0;
 
@@ -834,6 +835,11 @@ static char *SV_ReadEntityScript( const char *filename, int *flags )
 	memset( buf, 0, MAX_TOKEN );
 	FS_Read( f, buf, MAX_TOKEN );
 	header = (dheader_t *)buf;
+	
+#ifdef XASH_BIG_ENDIAN
+		for (i=0 ; i<sizeof(dheader_t)/4 ; i++)
+			LittleLongSW(((int *)header)[i]);
+#endif
 
 	// check all the lumps and some other errors
 	if( !Mod_TestBmodelLumps( bspfilename, buf, (host_developer.value) ? false : true ))
