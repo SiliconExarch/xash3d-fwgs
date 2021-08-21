@@ -61,6 +61,11 @@ static const dframetype_t *R_SpriteLoadFrame( model_t *mod, const void *pin, msp
 
 	memcpy( &pinframe, pin, sizeof(dspriteframe_t));
 
+	LittleLongSW(pinframe.origin[0]);
+	LittleLongSW(pinframe.origin[1]);
+	LittleLongSW(pinframe.width);
+	LittleLongSW(pinframe.height);
+
 	if( sprite_version == SPRITE_VERSION_32 )
 		bytes = 4;
 
@@ -107,7 +112,7 @@ static const dframetype_t *R_SpriteLoadGroup( model_t *mod, const void *pin, msp
 	const void		*ptemp;
 
 	pingroup = (const dspritegroup_t *)pin;
-	numframes = pingroup->numframes;
+	numframes = LittleLong(pingroup->numframes);
 
 	groupsize = sizeof( mspritegroup_t ) + (numframes - 1) * sizeof( pspritegroup->frames[0] );
 	pspritegroup = Mem_Calloc( mod->mempool, groupsize );
@@ -153,14 +158,15 @@ void Mod_LoadSpriteModel( model_t *mod, const void *buffer, qboolean *loaded, ui
 
 	pin = buffer;
 	psprite = mod->cache.data;
+	
+	sprite_version = LittleLong(pin->version);
 
-	if( pin->version == SPRITE_VERSION_Q1 || pin->version == SPRITE_VERSION_32 )
+	if( sprite_version == SPRITE_VERSION_Q1 || sprite_version == SPRITE_VERSION_32 )
 		numi = NULL;
-	else if( pin->version == SPRITE_VERSION_HL )
+	else if( sprite_version == SPRITE_VERSION_HL )
 		numi = (const short *)((const byte*)buffer + sizeof( dsprite_hl_t ));
 
 	r_texFlags = texFlags;
-	sprite_version = pin->version;
 	Q_strncpy( sprite_name, mod->name, sizeof( sprite_name ));
 	COM_StripExtension( sprite_name );
 
