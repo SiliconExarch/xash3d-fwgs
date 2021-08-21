@@ -123,7 +123,7 @@ JustAfew:
 	case 5: ulCrc  = crc32table[*pb++ ^ (byte)ulCrc] ^ (ulCrc >> 8); // fallthrough
 	case 4:
 		memcpy( &tmp, pb, sizeof(dword));
-		ulCrc ^= tmp;	// warning, this only works on little-endian.
+		ulCrc ^= LittleLong(tmp);	// warning, this only works on little-endian.
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
@@ -155,13 +155,13 @@ JustAfew:
 	while( nMain-- )
 	{
 		memcpy( &tmp, pb, sizeof(dword));
-		ulCrc ^= tmp;	// warning, this only works on little-endian.
+		ulCrc ^= LittleLong(tmp);	// warning, this only works on little-endian.
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		memcpy( &tmp, pb + 4, sizeof(dword));
-		ulCrc ^= tmp; // warning, this only works on little-endian.
+		ulCrc ^= LittleLong(tmp); // warning, this only works on little-endian.
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
 		ulCrc  = crc32table[(byte)ulCrc] ^ (ulCrc >> 8);
