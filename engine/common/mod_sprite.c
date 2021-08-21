@@ -40,9 +40,9 @@ void Mod_LoadSpriteModel( model_t *mod, const void *buffer, qboolean *loaded, ui
 	if( loaded ) *loaded = false;
 	pin = (dsprite_t *)buffer;
 	mod->type = mod_sprite;
-	i = pin->version;
+	i = LittleLong(pin->version);
 
-	if( pin->ident != IDSPRITEHEADER )
+	if( LittleLong(pin->ident) != IDSPRITEHEADER )
 	{
 		Con_DPrintf( S_ERROR "%s has wrong id (%x should be %x)\n", mod->name, pin->ident, IDSPRITEHEADER );
 		return;
@@ -59,45 +59,45 @@ void Mod_LoadSpriteModel( model_t *mod, const void *buffer, qboolean *loaded, ui
 	if( i == SPRITE_VERSION_Q1 || i == SPRITE_VERSION_32 )
 	{
 		pinq1 = (dsprite_q1_t *)buffer;
-		size = sizeof( msprite_t ) + ( pinq1->numframes - 1 ) * sizeof( psprite->frames );
+		size = sizeof( msprite_t ) + ( LittleLong(pinq1->numframes) - 1 ) * sizeof( psprite->frames );
 		psprite = Mem_Calloc( mod->mempool, size );
 		mod->cache.data = psprite;	// make link to extradata
 
-		psprite->type = pinq1->type;
+		psprite->type = LittleLong(pinq1->type);
 		psprite->texFormat = SPR_ADDITIVE;	//SPR_ALPHTEST;
-		psprite->numframes = mod->numframes = pinq1->numframes;
+		psprite->numframes = mod->numframes = LittleLong(pinq1->numframes);
 		psprite->facecull = SPR_CULL_FRONT;
-		psprite->radius = pinq1->boundingradius;
-		psprite->synctype = pinq1->synctype;
+		psprite->radius = LittleFloat(pinq1->boundingradius);
+		psprite->synctype = LittleLong(pinq1->synctype);
 
 		// LordHavoc: hack to allow sprites to be non-fullbright
 		for( i = 0; i < MAX_QPATH && mod->name[i]; i++ )
 			if( mod->name[i] == '!' )
 				psprite->texFormat = SPR_ALPHTEST;
 
-		mod->mins[0] = mod->mins[1] = -pinq1->bounds[0] * 0.5f;
-		mod->maxs[0] = mod->maxs[1] = pinq1->bounds[0] * 0.5f;
-		mod->mins[2] = -pinq1->bounds[1] * 0.5f;
-		mod->maxs[2] = pinq1->bounds[1] * 0.5f;
+		mod->mins[0] = mod->mins[1] = -LittleLong(pinq1->bounds[0]) * 0.5f;
+		mod->maxs[0] = mod->maxs[1] = LittleLong(pinq1->bounds[0]) * 0.5f;
+		mod->mins[2] = -LittleLong(pinq1->bounds[1]) * 0.5f;
+		mod->maxs[2] = LittleLong(pinq1->bounds[1]) * 0.5f;
 	}
 	else // if( i == SPRITE_VERSION_HL )
 	{
 		pinhl = (dsprite_hl_t *)buffer;
-		size = sizeof( msprite_t ) + ( pinhl->numframes - 1 ) * sizeof( psprite->frames );
+		size = sizeof( msprite_t ) + ( LittleLong(pinhl->numframes) - 1 ) * sizeof( psprite->frames );
 		psprite = Mem_Calloc( mod->mempool, size );
 		mod->cache.data = psprite;	// make link to extradata
 
-		psprite->type = pinhl->type;
-		psprite->texFormat = pinhl->texFormat;
-		psprite->numframes = mod->numframes = pinhl->numframes;
-		psprite->facecull = pinhl->facetype;
-		psprite->radius = pinhl->boundingradius;
-		psprite->synctype = pinhl->synctype;
+		psprite->type = LittleLong(pinhl->type);
+		psprite->texFormat = LittleLong(pinhl->texFormat);
+		psprite->numframes = LittleLong(mod->numframes = pinhl->numframes);
+		psprite->facecull = LittleLong(pinhl->facetype);
+		psprite->radius = LittleLong(pinhl->boundingradius);
+		psprite->synctype = LittleLong(pinhl->synctype);
 
-		mod->mins[0] = mod->mins[1] = -pinhl->bounds[0] * 0.5f;
-		mod->maxs[0] = mod->maxs[1] = pinhl->bounds[0] * 0.5f;
-		mod->mins[2] = -pinhl->bounds[1] * 0.5f;
-		mod->maxs[2] = pinhl->bounds[1] * 0.5f;
+		mod->mins[0] = mod->mins[1] = -LittleLong(pinhl->bounds[0]) * 0.5f;
+		mod->maxs[0] = mod->maxs[1] = LittleLong(pinhl->bounds[0]) * 0.5f;
+		mod->mins[2] = -LittleLong(pinhl->bounds[1]) * 0.5f;
+		mod->maxs[2] = LittleLong(pinhl->bounds[1]) * 0.5f;
 	}
 	if( loaded ) *loaded = true;	// done
 

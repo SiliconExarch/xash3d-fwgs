@@ -29,7 +29,11 @@ static dword	ExtraMasks[32];
 
 unsigned short MSG_BigShort( unsigned short swap )
 {
+#ifndef XASH_BIG_ENDIAN
 	return (swap >> 8)|(swap << 8);
+#else
+	return swap;
+#endif
 }
 
 void MSG_InitMasks( void )
@@ -164,12 +168,18 @@ void MSG_WriteUBitLong( sizebuf_t *sb, uint curData, int numbits )
 		uint	iDWord = iCurBit >> 5;	// Mask in a dword.
 		dword	iCurBitMasked;
 		int	nBitsWritten;
+		dword data;
 
 		Assert(( iDWord * 4 + sizeof( int )) <= (uint)MSG_GetMaxBytes( sb ));
 
 		iCurBitMasked = iCurBit & 31;
-		((dword *)sb->pData)[iDWord] &= BitWriteMasks[iCurBitMasked][nBitsLeft];
-		((dword *)sb->pData)[iDWord] |= curData << iCurBitMasked;
+		
+		data = LittleLong(((dword *)sb->pData)[iDWord]);
+			
+		data &= BitWriteMasks[iCurBitMasked][nBitsLeft];
+		data |= curData << iCurBitMasked;
+
+		((dword *)sb->pData)[iDWord] = LittleLong(data);
 
 		// did it span a dword?
 		nBitsWritten = 32 - iCurBitMasked;
@@ -181,8 +191,10 @@ void MSG_WriteUBitLong( sizebuf_t *sb, uint curData, int numbits )
 			curData >>= nBitsWritten;
 
 			iCurBitMasked = iCurBit & 31;
-			((dword *)sb->pData)[iDWord+1] &= BitWriteMasks[iCurBitMasked][nBitsLeft];
-			((dword *)sb->pData)[iDWord+1] |= curData << iCurBitMasked;
+			data = LittleLong(((dword *)sb->pData)[iDWord+1]);
+			data &= BitWriteMasks[iCurBitMasked][nBitsLeft];
+			data |= curData << iCurBitMasked;
+			((dword *)sb->pData)[iDWord+1] = LittleLong(data);
 		}
 		sb->iCurBit += numbits;
 	}
@@ -226,6 +238,7 @@ qboolean MSG_WriteBits( sizebuf_t *sb, const void *pData, int nBits )
 	byte	*pOut = (byte *)pData;
 	int	nBitsLeft = nBits;
 
+#ifndef XASH_BIG_ENDIAN
 	// get output dword-aligned.
 	while((( dword )pOut & 3 ) != 0 && nBitsLeft >= 8 )
 	{
@@ -243,6 +256,7 @@ qboolean MSG_WriteBits( sizebuf_t *sb, const void *pData, int nBits )
 		pOut += sizeof( dword );
 		nBitsLeft -= 32;
 	}
+#endif
 
 	// read the remaining bytes.
 	while( nBitsLeft >= 8 )
@@ -372,6 +386,7 @@ void MSG_WriteDword( sizebuf_t *sb, dword val )
 
 void MSG_WriteFloat( sizebuf_t *sb, float val )
 {
+	val = LittleFloat(val);
 	MSG_WriteBits( sb, &val, sizeof( val ) << 3 );
 }
 
@@ -430,7 +445,7 @@ uint MSG_ReadUBitLong( sizebuf_t *sb, int numbits )
 
 	// Read the current dword.
 	idword1 = sb->iCurBit >> 5;
-	dword1 = ((uint *)sb->pData)[idword1];
+	dword1 = LittleLong(((uint *)sb->pData)[idword1]);
 	dword1 >>= ( sb->iCurBit & 31 );	// get the bits we're interested in.
 
 	sb->iCurBit += numbits;
@@ -445,7 +460,7 @@ uint MSG_ReadUBitLong( sizebuf_t *sb, int numbits )
 	else
 	{
 		int	nExtraBits = sb->iCurBit & 31;
-		uint	dword2 = ((uint *)sb->pData)[idword1+1] & ExtraMasks[nExtraBits];
+		uint	dword2 = LittleLong(((uint *)sb->pData)[idword1+1]) & ExtraMasks[nExtraBits];
 
 		// no need to mask since we hit the end of the dword.
 		// shift the second dword's part into the high bits.
@@ -472,6 +487,7 @@ float MSG_ReadBitFloat( sizebuf_t *sb )
 	val |= ((int)sb->pData[byte + 1]) << ( 8 - bit );
 	val |= ((int)sb->pData[byte + 2]) << ( 16 - bit );
 	val |= ((int)sb->pData[byte + 3]) << ( 24 - bit );
+	LittleLongSW(val);
 
 	if( bit != 0 )
 		val |= ((int)sb->pData[byte + 4]) << ( 32 - bit );
@@ -485,6 +501,7 @@ qboolean MSG_ReadBits( sizebuf_t *sb, void *pOutData, int nBits )
 	byte	*pOut = (byte *)pOutData;
 	int	nBitsLeft = nBits;
 
+#ifndef XASH_BIG_ENDIAN
 	// get output dword-aligned.
 	while((( dword )pOut & 3) != 0 && nBitsLeft >= 8 )
 	{
@@ -500,6 +517,7 @@ qboolean MSG_ReadBits( sizebuf_t *sb, void *pOutData, int nBits )
 		pOut += sizeof( dword );
 		nBitsLeft -= 32;
 	}
+#endif
 
 	// read the remaining bytes.
 	while( nBitsLeft >= 8 )
@@ -634,7 +652,7 @@ float MSG_ReadFloat( sizebuf_t *sb )
 
 	MSG_ReadBits( sb, &ret, 32 );
 
-	return ret;
+	return LittleFloat(ret);
 }
 
 qboolean MSG_ReadBytes( sizebuf_t *sb, void *pOut, int nBytes )

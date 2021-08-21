@@ -610,6 +610,10 @@ pack_t *FS_LoadPackPAK( const char *packfile, int *error )
 
 	read( packhandle, (void *)&header, sizeof( header ));
 
+	LittleLongSW(header.ident);
+	LittleLongSW(header.dirlen);
+	LittleLongSW(header.dirofs);
+
 	if( header.ident != IDPACKV1HEADER )
 	{
 		Con_Reportf( "%s is not a packfile. Ignored.\n", packfile );
@@ -665,7 +669,7 @@ pack_t *FS_LoadPackPAK( const char *packfile, int *error )
 
 	// parse the directory
 	for( i = 0; i < numpackfiles; i++ )
-		FS_AddFileToPack( info[i].name, pack, info[i].filepos, info[i].filelen );
+		FS_AddFileToPack( info[i].name, pack, LittleLong(info[i].filepos), LittleLong(info[i].filelen) );
 
 #ifdef XASH_REDUCE_FD
 	// will reopen when needed
@@ -3998,7 +4002,11 @@ wfile_t *W_Open( const char *filename, int *error )
 		W_Close( wad );
 		return NULL;
 	}
-
+	
+	LittleLongSW(header.ident);
+	LittleLongSW(header.infotableofs);
+	LittleLongSW(header.numlumps);
+	
 	if( header.ident != IDWAD2HEADER && header.ident != IDWAD3HEADER )
 	{
 		Con_Reportf( S_ERROR "W_Open: %s is not a WAD2 or WAD3 file\n", filename );
@@ -4059,6 +4067,9 @@ wfile_t *W_Open( const char *filename, int *error )
 
 		// cleanup lumpname
 		Q_strnlwr( srclumps[i].name, name, sizeof( srclumps[i].name ));
+		LittleLongSW(srclumps[i].filepos);
+		LittleLongSW(srclumps[i].disksize);
+		LittleLongSW(srclumps[i].size);
 
 		// check for '*' symbol issues (quake1)
 		k = Q_strlen( Q_strrchr( name, '*' ));

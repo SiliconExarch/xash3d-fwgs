@@ -184,6 +184,7 @@ void Mod_StudioGetAttachment( const edict_t *e, int iAttachment, float *org, flo
 void Mod_GetBonePosition( const edict_t *e, int iBone, float *org, float *ang );
 hull_t *Mod_HullForStudio( model_t *m, float frame, int seq, vec3_t ang, vec3_t org, vec3_t size, byte *pcnt, byte *pbl, int *hitboxes, edict_t *ed );
 void R_StudioSlerpBones( int numbones, vec4_t q1[], float pos1[][3], vec4_t q2[], float pos2[][3], float s );
+void Mod_StudioBigEndian( model_t *model, byte *buffer );
 void R_StudioCalcBoneQuaternion( int frame, float s, mstudiobone_t *pbone, mstudioanim_t *panim, float *adj, vec4_t q );
 void R_StudioCalcBonePosition( int frame, float s, mstudiobone_t *pbone, mstudioanim_t *panim, vec3_t adj, vec3_t pos );
 void *R_StudioGetAnim( studiohdr_t *m_pStudioHeader, model_t *m_pSubModel, mstudioseqdesc_t *pseqdesc );

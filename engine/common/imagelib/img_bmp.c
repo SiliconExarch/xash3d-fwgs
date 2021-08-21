@@ -43,6 +43,17 @@ qboolean Image_LoadBMP( const char *name, const byte *buffer, fs_offset_t filesi
 	memcpy( &bhdr, buf_p, sizeof( bmp_t ));
 	buf_p += sizeof( bmp_t );
 
+	LittleLongSW(bhdr.fileSize);
+	LittleLongSW(bhdr.bitmapDataOffset);
+	LittleLongSW(bhdr.bitmapHeaderSize);
+	LittleLongSW(bhdr.width);
+	LittleLongSW(bhdr.height);
+	LittleShortSW(bhdr.planes);
+	LittleShortSW(bhdr.bitsPerPixel);
+	LittleLongSW(bhdr.compression);
+	LittleLongSW(bhdr.bitmapDataSize);
+	LittleLongSW(bhdr.colors);
+
 	// bogus file header check
 	if( bhdr.reserved0 != 0 ) return false;
 	if( bhdr.planes != 1 ) return false;
