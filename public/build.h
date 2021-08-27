@@ -95,6 +95,7 @@ For more information, please refer to <http://unlicense.org/>
 	#endif // defined(__ANDROID__)
 	#define XASH_POSIX 1
 #elif defined(__APPLE__)
+	#include <Availability.h>
 	#include <TargetConditionals.h>
 	#define XASH_APPLE 1
 	#if TARGET_OS_IOS
