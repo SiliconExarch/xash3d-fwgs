@@ -3091,8 +3091,11 @@ void SV_AllocStringPool( void )
 		size_t pagesize = sysconf( _SC_PAGESIZE );
 		int arrlen = (str64.maxstringarray * 2) & ~(pagesize - 1);
 		void *base = svgame.dllFuncs.pfnGameInit;
+#if (defined(__MAC_OS_X_VERSION_MIN_REQUIRED) &&  __MAC_OS_X_VERSION_MIN_REQUIRED >= 101600 && __MAC_OS_X_VERSION_MIN_REQUIRED < 120000 )
 		void *start = min(svgame.hInstance, base + INT_MAX) - arrlen;
-
+#else
+		void *start = svgame.hInstance - arrlen;
+#endif
 		while( start - base > INT_MIN )
 		{
 			void *mapptr = mmap((void*)((unsigned long)start & ~(pagesize - 1)), arrlen, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, 0, 0 );
